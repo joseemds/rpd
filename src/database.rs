@@ -5,8 +5,8 @@ pub fn create_connection() -> Connection{
 }
 
 
-pub fn create_tables(conn: Connection) -> Connection{
-    conn.execute_batch("
+pub fn create_tables(conn: &Connection) -> (){
+    conn.execute_batch(r#"
         BEGIN;
         CREATE TABLE IF NOT EXISTS feelings (
             id INTEGER PRIMARY KEY,
@@ -21,7 +21,6 @@ pub fn create_tables(conn: Connection) -> Connection{
         FOREIGN KEY (feeling_id)
             REFERENCES feelings (id)
         );
-        COMMIT;").unwrap();
-
-    conn
+        COMMIT;"#).unwrap();
 }
+

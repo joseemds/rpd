@@ -1,5 +1,9 @@
+mod database;
+
 use clap::{App, Parser, SubCommand};
 use inquire::{list_option::ListOption, InquireError, MultiSelect, Text};
+use crate::database::{create_connection, create_tables};
+
 
 /// Register your automatic thoughts
 #[derive(Parser, Debug)]
@@ -22,7 +26,13 @@ struct Args {
 //     intensity: i32
 // }
 
+
+
 fn main() {
+
+    let conn = create_connection();
+    create_tables(&conn);
+
     let app = App::new("rpd")
         .author("joseemds")
         .version("0.0.1")
@@ -30,18 +40,21 @@ fn main() {
         .subcommand(SubCommand::with_name("register").about("add a feeling"))
         .get_matches();
 
-    println!("App: {:?}", app);
-    // let args = Args::parse();
-    // let _ = Thought {feeling: String::from("bad"), situation: String::from("really bad"), thought: String::from("im a piece of shit"), intensity: 10};
-    match app.subcommand() {
+        match app.subcommand() {
         Some(("register", _)) | None => {
-            let options = vec![
-                ListOption::new(0, &"sad"),
-                ListOption::new(1, &"angry"),
-                ListOption::new(2, &"frustated"),
-            ];
+           let mut feelings_query = conn.prepare("SELECT id, name FROM feelings").unwrap();
 
-            let feeling = MultiSelect::new("What are you feeling now", options)
+           let feelings_stmt = feelings_query.query_map([], |row| {
+                Ok(ListOption::new(row.get(0).unwrap(), row.get(1).unwrap()))
+           }).unwrap();
+           
+           let mut feelings: Vec<ListOption<String>> = vec![];
+
+           for feeling in feelings_stmt.into_iter() {
+            feelings.push(feeling.unwrap())
+           }
+
+            let feeling = MultiSelect::new("What are you feeling now", feelings)
                 .prompt()
                 .map_err(|err| match err {
                     InquireError::OperationInterrupted | InquireError::OperationCanceled => {
