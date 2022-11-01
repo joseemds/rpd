@@ -1,30 +1,18 @@
 mod database;
+mod clap_app;
 
-use clap::{Parser, Subcommand};
+
 // use inquire::{list_option::ListOption, InquireError, MultiSelect, Text};
-// use crate::database::{create_connection, create_tables};
-
-
-#[derive(Subcommand, Debug)]
-enum Commands {
-    Query,
-    #[clap(subcommand)]
-    Add(AddArgs)
-}
-
-#[derive(Subcommand, Debug)]
-enum AddArgs {
-    Thought,
-    Feeling
-}
+use crate::database::{create_connection, create_tables};
+use clap_app::create_app;
 
 /// Register your automatic thoughts
-#[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None)]
-struct Bin {
-    #[clap(subcommand)]
-    command: Commands
-}
+// #[derive(Parser, Debug)]
+// #[clap(author, version, about, long_about = None)]
+// struct Bin {
+//     #[clap(subcommand)]
+//     command: Commands
+// }
 
 // #[derive(Debug)]
 // struct Thought {
@@ -36,10 +24,14 @@ struct Bin {
 
 
 
+fn matches(){
+    
+}
+
 fn main() {
 
-    // let conn = create_connection();
-    // create_tables(&conn);
+    let conn = create_connection();
+    create_tables(&conn);
 
     // let app = App::new("rpd")
     //     .author("joseemds")
@@ -55,7 +47,7 @@ fn main() {
     //        let feelings_stmt = feelings_query.query_map([], |row| {
     //             Ok(ListOption::new(row.get(0).unwrap(), row.get(1).unwrap()))
     //        }).unwrap();
-           
+
     //        let mut feelings: Vec<ListOption<String>> = vec![];
 
     //        for feeling in feelings_stmt.into_iter() {
@@ -105,11 +97,17 @@ fn main() {
     //     }
     // }
 
-    let app = Bin::parse();
+    // let app = Bin::parse();
 
-    match app.command {
-        Commands::Query => panic!("todo"),
-        Commands::Add(_) => panic!("todo")
+    // match app.command {
+    //     Commands::Query => panic!("todo"),
+    //     Commands::Add(_) => panic!("todo")
+    // }
+
+    let app = create_app();
+
+    match app.get_matches() {
+        x => { println!("{:?}", x); todo!("salve")}
     }
 
 
